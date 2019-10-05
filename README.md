@@ -33,6 +33,8 @@
     - click the "System Core" of the left dock menu, under it click GPIO
         - click on PA5->GPIO_Output in the Pinout view
         - under the "GPIO Mode and Configuration" dock on the right of the left most dock, select the PA5 pin row. Change "GPIO output level" to High 
+        - on the textfield of "User label", type in a name like "Ld2"
+            - This would be reflected in `static void MX_GPIO_Init(void)` and some `#defines` in `main.c` of the generated code
 
         This makes sure the blink program work
     - Click the "Project Manager" the tab
