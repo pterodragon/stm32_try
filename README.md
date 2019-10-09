@@ -111,5 +111,5 @@
 
 
 # License
-- MIT License for `Src` directory
+- MIT License for `Src` and `Inc` directory
 - Other softwares in this repository follow their respective license
