@@ -94,6 +94,15 @@
 
             - `arm-non-eabi-gdb` can be used like `gdb` afterwards (stepping the code and toggling the green LED by stepping the line `HAL_GPIO_TogglePin`)
 
+# Troubleshooting
+
+- Sometimes flashing doesn't work
+    - for openocd: `Error: init mode failed (unable to connect to the target)`
+    - for STM32CubeProgrammer: unable to find device/other error
+    
+    Try connecting BOOT0 pin to VDD
+    - This will cause the chip not boot from flash memory
+    then flashing
 
 # Reference sites
 - [1] https://superuser.com/questions/1419623/cannot-get-javafxopenjfx-to-work-with-openjdk-8-using-netbeans-8-2
