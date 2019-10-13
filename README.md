@@ -115,6 +115,9 @@
 - [3] https://stackoverflow.com/questions/37644823/how-to-flash-stm32-using-only-linux-terminal
 - [4] https://bgamari.github.io/posts/2014-10-31-semihosting.html
 
+# Reference textbook
+- Mastering STM32 by Carmine Noviello: https://leanpub.com/mastering-stm32
+
 
 # License
 - MIT License for `Src` and `Inc` directory
