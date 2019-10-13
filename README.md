@@ -94,6 +94,11 @@
 
             - `arm-non-eabi-gdb` can be used like `gdb` afterwards (stepping the code and toggling the green LED by stepping the line `HAL_GPIO_TogglePin`)
 
+# Semihosting
+
+- openocd -f semihosting.cfg [[4]](#reference-sites)
+- After detaching from gdb, core may halt at `printf`
+
 # Troubleshooting
 
 - Sometimes flashing doesn't work
@@ -108,6 +113,7 @@
 - [1] https://superuser.com/questions/1419623/cannot-get-javafxopenjfx-to-work-with-openjdk-8-using-netbeans-8-2
 - [2] https://www.instructables.com/id/STM32F103-Blink-LED/
 - [3] https://stackoverflow.com/questions/37644823/how-to-flash-stm32-using-only-linux-terminal
+- [4] https://bgamari.github.io/posts/2014-10-31-semihosting.html
 
 
 # License
