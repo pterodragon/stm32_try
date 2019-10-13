@@ -57,7 +57,15 @@ static void MX_GPIO_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+extern void initialise_monitor_handles(void);
+
 /* USER CODE END 0 */
+
+#ifdef DEBUG
+#define dprintf(...) printf (__VA_ARGS__)
+#else
+#define dprintf(...)
+#endif
 
 /**
  * @brief  The application entry point.
@@ -70,6 +78,9 @@ int main(void) {
 
   /* MCU Configuration--------------------------------------------------------*/
 
+#ifdef DEBUG
+  initialise_monitor_handles();
+#endif
   /* Reset of all peripherals, Initializes the Flash interface and the Systick.
    */
   HAL_Init();
@@ -102,8 +113,10 @@ int main(void) {
       state = (state + 1) % 4;
       if (state == 2) {
           HAL_GPIO_WritePin(Ld2_GPIO_Port, Ld2_Pin, GPIO_PIN_SET);
+          dprintf("set!\n");
       } else if (state == 0) {
           HAL_GPIO_WritePin(Ld2_GPIO_Port, Ld2_Pin, GPIO_PIN_RESET);
+          dprintf("unset!\n");
       }
     }
     HAL_Delay(100);
@@ -169,7 +182,7 @@ static void MX_GPIO_Init(void) {
 
   GPIO_InitStruct.Pin   = USER_BUTTON_PIN;
   GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull  = GPIO_PULLUP;
+  GPIO_InitStruct.Pull  = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
   HAL_GPIO_Init(USER_BUTTON_GPIO_Port, &GPIO_InitStruct);
 

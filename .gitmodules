@@ -1,0 +1,6 @@
+[submodule "openocd"]
+	path = openocd
+	url = git://repo.or.cz/openocd.git
+[submodule "newlib-cygwin"]
+	path = newlib-cygwin
+	url = git://sourceware.org/git/newlib-cygwin.git

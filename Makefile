@@ -106,6 +106,10 @@ C_DEFS =  \
 -DSTM32F446xx \
 -DUSE_HAL_DRIVER \
 -DSTM32F446xx
+ifeq ($(DEBUG), 1)
+C_DEFS += -DDEBUG 
+endif
+
 
 
 # AS includes
@@ -142,9 +146,23 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LDSCRIPT = STM32F446RETx_FLASH.ld
 
 # libraries
-LIBS = -lc -lm -lnosys 
+# LIBS = -lc -lm -lnosys 
+#
+LIBS = -lc -lm
+ifeq ($(DEBUG), 1)
+LIBS += -lrdimon
+else
+LIBS += -lnosys
+endif
 LIBDIR = 
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+# LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+ifeq ($(DEBUG), 1)
+LDFLAGS += -specs=rdimon.specs 
+else
+LDFLAGS += -specs=nano.specs 
+
+endif
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
