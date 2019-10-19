@@ -69,14 +69,14 @@ extern void initialise_monitor_handles(void);
 const char msg[] = "demonstrates how to implement trace_printf()\n"; // has to be put in global scope
 
 void trace_printf() {
-    asm volatile (
-            " mov r0, 0x4 \n"
-            " mov r1, %[msg] \n"
-            " bkpt #0xAB"
-            :
-            : [msg] "r" (msg)
-            : "r0", "r1"
-            );
+	asm volatile (
+			" mov r0, 0x4 \n"
+			" mov r1, %[msg] \n"
+			" bkpt #0xAB"
+			:
+			: [msg] "r" (msg)
+			: "r0", "r1"
+			);
 }
 
 /**
@@ -84,59 +84,41 @@ void trace_printf() {
  * @retval int
  */
 int main(void) {
-    /* USER CODE BEGIN 1 */
+	/* USER CODE BEGIN 1 */
 
-    /* USER CODE END 1 */
+	/* USER CODE END 1 */
 
-    /* MCU Configuration--------------------------------------------------------*/
+	/* MCU Configuration--------------------------------------------------------*/
 
 #ifdef DEBUG
-    initialise_monitor_handles();
+	initialise_monitor_handles();
 #endif
-    /* Reset of all peripherals, Initializes the Flash interface and the Systick.
-    */
-    HAL_Init();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick.
+	*/
+	HAL_Init();
 
-    /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-    /* USER CODE END Init */
+	/* USER CODE END Init */
 
-    /* Configure the system clock */
-    SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-    /* USER CODE BEGIN SysInit */
+	/* USER CODE BEGIN SysInit */
 
-    /* USER CODE END SysInit */
+	/* USER CODE END SysInit */
 
-    /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    /* USER CODE BEGIN 2 */
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	/* USER CODE BEGIN 2 */
 
-    /* USER CODE END 2 */
+	/* USER CODE END 2 */
 
-    /* Infinite loop */
-    /* USER CODE BEGIN WHILE */
-    int state = 0;
-    while (1) {
-        int volt = HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port, USER_BUTTON_PIN);
-        if (volt == 1 && (state % 2 == 0)) {
-            state = (state + 1) % 4;
-        } else if (volt == 0 && (state % 2 == 1)) {
-            state = (state + 1) % 4;
-            trace_printf();
-            if (state == 2) {
-                HAL_GPIO_WritePin(Ld2_GPIO_Port, Ld2_Pin, GPIO_PIN_SET);
-                dprintf("set!\n");
-            } else if (state == 0) {
-                HAL_GPIO_WritePin(Ld2_GPIO_Port, Ld2_Pin, GPIO_PIN_RESET);
-                dprintf("unset!\n");
-            }
-        }
-        HAL_Delay(100);
-        /* USER CODE END WHILE */
-    }
-    /* USER CODE BEGIN 3 */
-    /* USER CODE END 3 */
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
+	while (1);
+	/* USER CODE BEGIN 3 */
+	/* USER CODE END 3 */
 }
 
 /**
@@ -144,34 +126,34 @@ int main(void) {
  * @retval None
  */
 void SystemClock_Config(void) {
-    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+	RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+	RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-    /** Configure the main internal regulator output voltage
-    */
-    __HAL_RCC_PWR_CLK_ENABLE();
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
-    /** Initializes the CPU, AHB and APB busses clocks
-    */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-        Error_Handler();
-    }
-    /** Initializes the CPU, AHB and APB busses clocks
-    */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
-        RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+	/** Configure the main internal regulator output voltage
+	*/
+	__HAL_RCC_PWR_CLK_ENABLE();
+	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+	/** Initializes the CPU, AHB and APB busses clocks
+	*/
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+	RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+		Error_Handler();
+	}
+	/** Initializes the CPU, AHB and APB busses clocks
+	*/
+	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
+		RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
-        Error_Handler();
-    }
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+		Error_Handler();
+	}
 }
 
 /**
@@ -180,30 +162,38 @@ void SystemClock_Config(void) {
  * @retval None
  */
 static void MX_GPIO_Init(void) {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-    /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
+	/* GPIO Ports Clock Enable */
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 
-    /*Configure GPIO pin : Ld2_Pin */
-    GPIO_InitStruct.Pin = Ld2_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(Ld2_GPIO_Port, &GPIO_InitStruct);
+	/*Configure GPIO pin : PC13 - USER BUTTON */
+	GPIO_InitStruct.Pin = GPIO_PIN_13 | GPIO_PIN_12;
+	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin   = USER_BUTTON_PIN;
-    GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-    HAL_GPIO_Init(USER_BUTTON_GPIO_Port, &GPIO_InitStruct);
+	/*Configure GPIO pin : PA5 - LD2 LED */
+	GPIO_InitStruct.Pin = GPIO_PIN_5;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    // GPIO_InitStruct.Pin = USER_BUTTON_PIN;
-    // GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    // GPIO_InitStruct.Pull = GPIO_NOPULL;
-    // GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    // HAL_GPIO_Init(USER_BUTTON_GPIO_Port, &GPIO_InitStruct);
+	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+}
+
+void EXTI15_10_IRQHandler(void) {
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	if(GPIO_Pin == GPIO_PIN_13)
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	else if(GPIO_Pin == GPIO_PIN_12)
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, RESET);
 }
 
 /* USER CODE BEGIN 4 */
@@ -215,10 +205,10 @@ static void MX_GPIO_Init(void) {
  * @retval None
  */
 void Error_Handler(void) {
-    /* USER CODE BEGIN Error_Handler_Debug */
-    /* User can add his own implementation to report the HAL error return state */
+	/* USER CODE BEGIN Error_Handler_Debug */
+	/* User can add his own implementation to report the HAL error return state */
 
-    /* USER CODE END Error_Handler_Debug */
+	/* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef USE_FULL_ASSERT
@@ -230,11 +220,11 @@ void Error_Handler(void) {
  * @retval None
  */
 void assert_failed(uint8_t *file, uint32_t line) {
-    /* USER CODE BEGIN 6 */
-    /* User can add his own implementation to report the file name and line
-       number, tex: printf("Wrong parameters value: file %s on line %d\r\n", file,
-       line) */
-    /* USER CODE END 6 */
+	/* USER CODE BEGIN 6 */
+	/* User can add his own implementation to report the file name and line
+	   number, tex: printf("Wrong parameters value: file %s on line %d\r\n", file,
+	   line) */
+	/* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
 
