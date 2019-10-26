@@ -46,6 +46,20 @@
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
 
+/**
+* @brief This function handles USART2 global interrupt.
+*/
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+  HAL_UART_IRQHandler(&huart2);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+
+  /* USER CODE END USART2_IRQn 1 */
+}
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -64,21 +78,15 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE END 0 */
 
 volatile uint8_t lock = 0; // poor man's lock
-#define MSG_LEN 1024 // 64KB
+#define MSG_LEN 1024
 char s[MSG_LEN];
 
 void print_msg(uint32_t *x, uint32_t y) {
     if (!lock) {
         lock = 1;
         sprintf(&s[MSG_LEN - 20], "\r\n(%ld, %ld)\r\n", *x, y);
-        ++*x;
-        HAL_StatusTypeDef ok = HAL_UART_Transmit(&huart2, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
-        while (ok != HAL_OK) {
-            char ss[100] = {"1-error/2-busy/3-timeout: "};
-            uint32_t len = strlen(s);
-            sprintf(&ss[len], "%d\r\n", ok);
-            ok = HAL_UART_Transmit(&huart2, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
-        };
+        HAL_StatusTypeDef ok = HAL_UART_Transmit_IT(&huart2, (uint8_t*)s, strlen(s));
+        if (ok == HAL_OK) ++*x;
         lock = 0;
     }
 }
@@ -116,6 +124,8 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -227,6 +237,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
 
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) {
 }
 
 /* USER CODE BEGIN 4 */
