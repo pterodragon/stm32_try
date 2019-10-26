@@ -109,6 +109,8 @@
     - This will cause the chip not boot from flash memory
     then flashing
 
+    - Also, try unplugging the power and flashing in a 1 sec after plugging the power
+
 # Reference sites
 - [1] https://superuser.com/questions/1419623/cannot-get-javafxopenjfx-to-work-with-openjdk-8-using-netbeans-8-2
 - [2] https://www.instructables.com/id/STM32F103-Blink-LED/
@@ -117,6 +119,10 @@
 
 # Reference textbook
 - Mastering STM32 by Carmine Noviello: https://leanpub.com/mastering-stm32
+
+# This repository
+
+Look at the commit history for working examples
 
 
 # License
