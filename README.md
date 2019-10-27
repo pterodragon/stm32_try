@@ -105,11 +105,12 @@
     - for openocd: `Error: init mode failed (unable to connect to the target)`
     - for STM32CubeProgrammer: unable to find device/other error
     
-    Try connecting BOOT0 pin to VDD
+    Try connecting BOOT0 and BOOT1 pin to VDD then flashing
     - This will cause the chip not boot from flash memory
-    then flashing
+    - Make sure to remove any wire connections afterwards
 
     - Also, try unplugging the power and flashing in a 1 sec after plugging the power
+    - Try a different usb port
 
 # Reference sites
 - [1] https://superuser.com/questions/1419623/cannot-get-javafxopenjfx-to-work-with-openjdk-8-using-netbeans-8-2

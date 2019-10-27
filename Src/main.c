@@ -78,13 +78,13 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE END 0 */
 
 volatile uint8_t lock = 0; // poor man's lock
-#define MSG_LEN 1024
+#define MSG_LEN 64
 char s[MSG_LEN];
 
 void print_msg(uint32_t *x, uint32_t y) {
     if (!lock) {
         lock = 1;
-        sprintf(&s[MSG_LEN - 20], "\r\n(%ld, %ld)\r\n", *x, y);
+        sprintf(&s[MSG_LEN - 30], "\r\n(%ld, %ld)\r\n", *x, y);
         HAL_StatusTypeDef ok = HAL_UART_Transmit_IT(&huart2, (uint8_t*)s, strlen(s));
         if (ok == HAL_OK) ++*x;
         lock = 0;
@@ -133,11 +133,15 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint32_t x = 0;
-  uint32_t y = 0;
+  volatile uint32_t y = 0; // make sure this is volatile or compiler may optimize dead code
   while (1)
   {
     /* USER CODE END WHILE */
-    print_msg(&x, y);
+    if (y % 100000 < 3) {
+        print_msg(&x, y);
+    } else {
+        ++x;
+    }
     ++y; // critical task
     /* USER CODE BEGIN 3 */
   }
