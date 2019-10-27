@@ -22,6 +22,7 @@
 #include "main.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -129,6 +130,31 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
+
+  uint8_t start = 0;
+  while (!start) {
+      char buf[5];
+      HAL_UART_Receive(&huart2, (uint8_t*)buf, 1, HAL_MAX_DELAY);
+      uint8_t opt = atoi(buf);
+      switch (opt) {
+          case 1: {
+            char s[] = "hello\r\n";
+            HAL_UART_Transmit(&huart2, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
+              break;
+          }
+          case 2: {
+            char s[] = "start\r\n";
+            HAL_UART_Transmit(&huart2, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
+            start = 1;
+              break;
+          }
+          default: {
+            char s[] = "default\r\n";
+            HAL_UART_Transmit(&huart2, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
+          }
+
+      }
+  }
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
