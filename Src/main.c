@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ring_buffer.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -78,16 +80,38 @@ static void MX_USART2_UART_Init(void);
 
 /* USER CODE END 0 */
 
+#define BUF_SIZE 1024
+uint8_t buf[BUF_SIZE];
+uint8_t buf2[BUF_SIZE];
 volatile uint8_t lock = 0; // poor man's lock
 #define MSG_LEN 64
 char s[MSG_LEN];
+circular_buf_t ring; // breaks encapsulation here
 
 void print_msg(uint32_t *x, uint32_t y) {
+    // the below is also available but the overhead may be high
+    // void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) 
+    // void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+
     if (!lock) {
         lock = 1;
-        sprintf(&s[MSG_LEN - 30], "\r\n(%ld, %ld)\r\n", *x, y);
-        HAL_StatusTypeDef ok = HAL_UART_Transmit_IT(&huart2, (uint8_t*)s, strlen(s));
-        if (ok == HAL_OK) ++*x;
+        sprintf(&s[MSG_LEN - 30], "\r\n(%lu, %lu)\r\n", *x, y);
+        uint8_t e = 0;
+        while (s[e] != '\0') {
+            circular_buf_put(&ring, s[e++]);
+        }
+        circular_buf_put(&ring, '\0');
+        ++*x;
+        uint32_t q = 0;
+        if (HAL_UART_GetState(&huart2) != HAL_UART_STATE_BUSY_TX &&
+            HAL_UART_GetState(&huart2) != HAL_UART_STATE_BUSY_TX_RX) {
+            while (circular_buf_get(&ring, &buf2[q++]) != -1) {
+            }
+            HAL_StatusTypeDef ok = HAL_UART_Transmit_IT(&huart2, buf2, q);
+            if (ok != HAL_OK) {
+            // nothing
+            }
+        }
         lock = 0;
     }
 }
@@ -155,7 +179,7 @@ int main(void)
 
       }
   }
-
+  circular_buf_init(&ring, buf, BUF_SIZE);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint32_t x = 0;

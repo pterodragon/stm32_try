@@ -1,6 +1,10 @@
 #include "ring_buffer.h"
 #include <assert.h>
 
+/*
+ * Inefficient implementation; but just for demonstrating purpose...
+ */
+
 void circular_buf_init(circular_buf_t* cbuf, uint8_t* buffer, uint32_t size) {
   assert(buffer && size);
   assert(cbuf);
