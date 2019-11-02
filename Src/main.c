@@ -24,8 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ring_buffer.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -49,28 +47,17 @@
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
 
-/**
-* @brief This function handles USART2 global interrupt.
-*/
-void USART2_IRQHandler(void)
-{
-  /* USER CODE BEGIN USART2_IRQn 0 */
-
-  /* USER CODE END USART2_IRQn 0 */
-  HAL_UART_IRQHandler(&huart2);
-  /* USER CODE BEGIN USART2_IRQn 1 */
-
-  /* USER CODE END USART2_IRQn 1 */
-}
-
 /* USER CODE BEGIN PV */
-
+DMA_HandleTypeDef hdma_usart2_tx;
+char *msg = "Hello STM32 Lovers! This message is transferred in DMA Mode.\r\n";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
+extern void initialise_monitor_handles(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -80,42 +67,6 @@ static void MX_USART2_UART_Init(void);
 
 /* USER CODE END 0 */
 
-#define BUF_SIZE 1024
-uint8_t buf[BUF_SIZE];
-uint8_t buf2[BUF_SIZE];
-volatile uint8_t lock = 0; // poor man's lock
-#define MSG_LEN 64
-char s[MSG_LEN];
-circular_buf_t ring; // breaks encapsulation here
-
-void print_msg(uint32_t *x, uint32_t y) {
-    // the below is also available but the overhead may be high
-    // void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) 
-    // void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-
-    if (!lock) {
-        lock = 1;
-        sprintf(&s[MSG_LEN - 30], "\r\n(%lu, %lu)\r\n", *x, y);
-        uint8_t e = 0;
-        while (s[e] != '\0') {
-            circular_buf_put(&ring, s[e++]);
-        }
-        circular_buf_put(&ring, '\0');
-        ++*x;
-        uint32_t q = 0;
-        if (HAL_UART_GetState(&huart2) != HAL_UART_STATE_BUSY_TX &&
-            HAL_UART_GetState(&huart2) != HAL_UART_STATE_BUSY_TX_RX) {
-            while (circular_buf_get(&ring, &buf2[q++]) != -1) {
-            }
-            HAL_StatusTypeDef ok = HAL_UART_Transmit_IT(&huart2, buf2, q);
-            if (ok != HAL_OK) {
-            // nothing
-            }
-        }
-        lock = 0;
-    }
-}
-
 /**
   * @brief  The application entry point.
   * @retval int
@@ -123,10 +74,9 @@ void print_msg(uint32_t *x, uint32_t y) {
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  for (int q = 0; q < MSG_LEN; ++q) {
-      s[q] = '#';
-  }
-
+#ifdef DEBUG
+    // initialise_monitor_handles();
+#endif
   /* USER CODE END 1 */
   
 
@@ -148,51 +98,24 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART2_UART_Init();
-  HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN 2 */
 
+  // Define DMA1_Stream6_IRQHandler and use __HAL_LINKDMA and use this
+  HAL_UART_Transmit_DMA(&huart2, (uint8_t*)msg, strlen(msg));
+
+  // HAL_DMA_Start_IT(&hdma_usart2_tx,  (uint32_t)msg,  (uint32_t)&huart2.Instance->DR, strlen(msg));
+  //Enable UART in DMA mode
+  // huart2.Instance->CR3 |= USART_CR3_DMAT;
   /* USER CODE END 2 */
 
-  uint8_t start = 0;
-  while (!start) {
-      char buf[5];
-      HAL_UART_Receive(&huart2, (uint8_t*)buf, 1, HAL_MAX_DELAY);
-      uint8_t opt = atoi(buf);
-      switch (opt) {
-          case 1: {
-            char s[] = "hello\r\n";
-            HAL_UART_Transmit(&huart2, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
-              break;
-          }
-          case 2: {
-            char s[] = "start\r\n";
-            HAL_UART_Transmit(&huart2, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
-            start = 1;
-              break;
-          }
-          default: {
-            char s[] = "default\r\n";
-            HAL_UART_Transmit(&huart2, (uint8_t*)s, strlen(s), HAL_MAX_DELAY);
-          }
-
-      }
-  }
-  circular_buf_init(&ring, buf, BUF_SIZE);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint32_t x = 0;
-  volatile uint32_t y = 0; // make sure this is volatile or compiler may optimize dead code
   while (1)
   {
     /* USER CODE END WHILE */
-    if (y % 100000 < 3) {
-        print_msg(&x, y);
-    } else {
-        ++x;
-    }
-    ++y; // critical task
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -269,6 +192,22 @@ static void MX_USART2_UART_Init(void)
 
 }
 
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
+
+}
+
 /**
   * @brief GPIO Initialization Function
   * @param None
@@ -293,10 +232,15 @@ static void MX_GPIO_Init(void)
 
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) {
-}
-
 /* USER CODE BEGIN 4 */
+void DMATransferComplete(DMA_HandleTypeDef *hdma) {
+  if(hdma->Instance == DMA1_Stream6 && hdma->Init.Channel == DMA_CHANNEL_4) {
+    //Disable UART DMA mode
+    huart2.Instance->CR3 &= ~USART_CR3_DMAT;
+    //Turn LD2 ON
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+  }
+}
 
 /* USER CODE END 4 */
 
@@ -308,6 +252,9 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+  volatile int8_t x = 1;
+  while (++x) {
+  }
 
   /* USER CODE END Error_Handler_Debug */
 }

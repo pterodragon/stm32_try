@@ -1,18 +1,46 @@
 # Acronyms
 
-CMSIS = Cortex Microcontroller Software Interface Standard
-COM = communication
-DMA = direct memory access
-EXTI = External Interrupt/Event Controller
-GPIO = general-purpose input/output
-HAL = hardware abstraction layer
-IRQ = interrupt request
-MCU = Microcontroller unit
-MSP = MCU support package
-NMI = non maskable interrupt
-NVIC = Nested Vectored Interrupt Controller
-OpenOCD = Open on chip debugger
-TTL = transitor transitor logic
-UART = Universal Asynchronous Receiver/Transmitter
-USART = Universal Synchronous and Asynchronous Receiver/Transmitter
-VCP = virtual COM port
+- ADC = Analog to digital converter
+- AHB = Advanced High-performance Bus
+- APB = Advanced Peripheral Bus
+- ART accelerator = Adaptive real time memory accelerator
+- CMSIS = Cortex Microcontroller Software Interface Standard
+- CCM = Core Coupled Memory 
+- COM = communication
+- CPLT = complete
+- CRC = Cyclic redundancy check
+- D- = Data- (e.g. D-bus = data bus)
+- ADC = Digital to analog converter
+- DMA = direct memory access
+- EXTI = External Interrupt/Event Controller
+- FLITF = Flash memory interface
+- FMC = Flexible memory controller
+- FSMC = Flexible static memory controller
+- GPIO = general-purpose input/output
+- HAL = hardware abstraction layer
+- H- = handle of- (in code e.g. hdma)
+- IRQ = interrupt request
+- ISR = interrupt service routine
+- I2C = Inter-Integrated Circuit (eye squared see)
+- I- = instruction- (e.g. I-bus = instruction bus)
+- MCU = Microcontroller unit
+- MSP = MCU support package
+- NMI = non maskable interrupt
+- NVIC = Nested Vectored Interrupt Controller
+- OpenOCD = Open on chip debugger
+- OTG = on the go
+- PER = peripheral
+- P- = peripheral-
+- RCC = Reset and clock controller
+- SPI = Serial Peripheral Interface
+- S- = system- (e.g. S-bus = system bus)
+- TIM = Timer
+- TTL = transitor transitor logic
+- UART = Universal Asynchronous Receiver/Transmitter
+- USART = Universal Synchronous and Asynchronous Receiver/Transmitter
+- VCP = virtual COM port
+- WWDG = window watchdog
+- X- = trans- (e.g. Xfer = Transfer)
+
+# Useful
+- `HAL_UART_Init()` calls `HAL_UART_MspInit()`
