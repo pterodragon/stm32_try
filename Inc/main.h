@@ -52,7 +52,6 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-void DMATransferComplete(DMA_HandleTypeDef *hdma);
 
 /* USER CODE BEGIN EFP */
 

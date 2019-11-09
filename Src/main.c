@@ -20,9 +20,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -46,10 +43,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_rx;
 
 /* USER CODE BEGIN PV */
-DMA_HandleTypeDef hdma_usart2_tx;
-char *msg = "Hello STM32 Lovers! This message is transferred in DMA Mode.\r\n";
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -64,6 +61,10 @@ extern void initialise_monitor_handles(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint8_t dataArrived = 0;
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    dataArrived = 1;
+}
 
 /* USER CODE END 0 */
 
@@ -75,7 +76,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 #ifdef DEBUG
-    // initialise_monitor_handles();
+    initialise_monitor_handles();
 #endif
   /* USER CODE END 1 */
   
@@ -102,18 +103,17 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  // Define DMA1_Stream6_IRQHandler and use __HAL_LINKDMA and use this
-  HAL_UART_Transmit_DMA(&huart2, (uint8_t*)msg, strlen(msg));
-
-  // HAL_DMA_Start_IT(&hdma_usart2_tx,  (uint32_t)msg,  (uint32_t)&huart2.Instance->DR, strlen(msg));
-  //Enable UART in DMA mode
-  // huart2.Instance->CR3 |= USART_CR3_DMAT;
   /* USER CODE END 2 */
+  uint8_t data[3];
+  HAL_UART_Receive_DMA(&huart2, &data, 3);  // match the baudrate when receiving otherwise garbage data is received
+  while(!dataArrived);
 
+  volatile uint8_t x;
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+      ++x;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -202,9 +202,9 @@ static void MX_DMA_Init(void)
   __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA1_Stream6_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 }
 
@@ -233,14 +233,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void DMATransferComplete(DMA_HandleTypeDef *hdma) {
-  if(hdma->Instance == DMA1_Stream6 && hdma->Init.Channel == DMA_CHANNEL_4) {
-    //Disable UART DMA mode
-    huart2.Instance->CR3 &= ~USART_CR3_DMAT;
-    //Turn LD2 ON
-    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-  }
-}
 
 /* USER CODE END 4 */
 
@@ -252,9 +244,6 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-  volatile int8_t x = 1;
-  while (++x) {
-  }
 
   /* USER CODE END Error_Handler_Debug */
 }
