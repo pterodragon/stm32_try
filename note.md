@@ -63,3 +63,11 @@
 
 # Useful
 - `HAL_UART_Init()` calls `HAL_UART_MspInit()`
+
+# Caveat
+- When memory-to-memory mode is used, the circular and direct modes are not allowed. Only the DMA2 controller is able to perform memory-to-memory transfers. Ref: RM0390
+- `DMA_MEMORY_TO_MEMORY` caveat: https://community.st.com/s/question/0D50X00009XkYz0SAF/timerdriven-single-word-memorytomemory-dma-transfer-can-it-be-done-in-hal
+- `HAL_UART_Transmit_DMA` sets `XferCpltCallback` automatically
+- Only USART2 is connected to the ST-LINK for nucleo-64 boards: Ref: UM1724; http://www.emcu.eu/how-to-manage-two-uart-usart2-and-usart1-under-interrupt/
+    - USART1 can't receive data
+
