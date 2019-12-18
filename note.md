@@ -44,3 +44,5 @@
 
 # Useful
 - `HAL_UART_Init()` calls `HAL_UART_MspInit()`
+- why `UART_DMATransmitCplt` doesn't call `HAL_UART_TxCpltCallback` at once:
+    - https://community.st.com/s/question/0D50X0000BG05R5SQJ/why-dma-complete-transfer-interrupt-wont-call-the-callback-function-haluarttxcpltcallback-

@@ -16,13 +16,14 @@
   *
   ******************************************************************************
   */
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -46,6 +47,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 DMA_HandleTypeDef hdma_usart2_tx;
@@ -233,14 +235,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void DMATransferComplete(DMA_HandleTypeDef *hdma) {
-  if(hdma->Instance == DMA1_Stream6 && hdma->Init.Channel == DMA_CHANNEL_4) {
-    //Disable UART DMA mode
-    huart2.Instance->CR3 &= ~USART_CR3_DMAT;
-    //Turn LD2 ON
-    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-  }
-}
 
 /* USER CODE END 4 */
 
