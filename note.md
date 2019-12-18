@@ -3,10 +3,13 @@
 - ADC = Analog to digital converter
 - AHB = Advanced High-performance Bus
 - APB = Advanced Peripheral Bus
+- ARR = Auto reload register
 - ART accelerator = Adaptive real time memory accelerator
+- CAL = calibration
 - CMSIS = Cortex Microcontroller Software Interface Standard
 - CCM = Core Coupled Memory 
 - COM = communication
+- CSS = Clock Security System
 - CPLT = complete
 - CRC = Cyclic redundancy check
 - D- = Data- (e.g. D-bus = data bus)
@@ -18,25 +21,41 @@
 - FSMC = Flexible static memory controller
 - GPIO = general-purpose input/output
 - HAL = hardware abstraction layer
+- HCLK = High Speed Clock
+- HSE = High Speed External
+- HSI = High Speed Internal
 - H- = handle of- (in code e.g. hdma)
 - IRQ = interrupt request
 - ISR = interrupt service routine
+- IWDT = Independent watchdog
 - I2C = Inter-Integrated Circuit (eye squared see)
 - I- = instruction- (e.g. I-bus = instruction bus)
+- LSE = Low Speed External
+- LSI = Low Speed Internal
+- MCO = Master Clock Output
 - MCU = Microcontroller unit
+- MSI = Multispeed Internal
 - MSP = MCU support package
 - NMI = non maskable interrupt
 - NVIC = Nested Vectored Interrupt Controller
 - OpenOCD = Open on chip debugger
+- OPM = One pulse mode
 - OTG = on the go
 - PER = peripheral
+- PLL = Phase-Locked Loops
+- PWM = Pulse-width modulation
 - P- = peripheral-
 - RCC = Reset and clock controller
+- RTC = Real Time Clock
 - SPI = Serial Peripheral Interface
+- SW = System Clock Switch
+- SYSCLK = System Clock Frequency
 - S- = system- (e.g. S-bus = system bus)
 - TIM = Timer
 - TTL = transitor transitor logic
 - UART = Universal Asynchronous Receiver/Transmitter
+- UIF = Update Interrupt Flag
+- UEV = Update Event
 - USART = Universal Synchronous and Asynchronous Receiver/Transmitter
 - VCP = virtual COM port
 - WWDG = window watchdog
@@ -44,5 +63,5 @@
 
 # Useful
 - `HAL_UART_Init()` calls `HAL_UART_MspInit()`
-- why `UART_DMATransmitCplt` doesn't call `HAL_UART_TxCpltCallback` at once:
+- why `UART_DMATransmitCplt` doesn't call `HAL_UART_TxCpltCallback` at once for `DMA_NORMAL` mode:
     - https://community.st.com/s/question/0D50X0000BG05R5SQJ/why-dma-complete-transfer-interrupt-wont-call-the-callback-function-haluarttxcpltcallback-
