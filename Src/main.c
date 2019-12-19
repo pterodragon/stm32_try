@@ -61,8 +61,7 @@ static void MX_TIM1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 extern void initialise_monitor_handles(void);
-TIM_HandleTypeDef htim1;
-uint8_t data[] = {0xFF, 0x00};
+uint8_t data[] = {0xFD, 0xFD, 0x00}; // TODO: WHY all 0xFD in target?
 /* USER CODE END 0 */
 
 /**
@@ -105,27 +104,30 @@ int main(void)
 	} else {
 		printf("TIM ERR\n");
 	}
-  ok = HAL_DMA_Start(&hdma_tim1_up, (uint32_t)data, (uint32_t)&GPIOA->ODR, 2);
+  uint8_t target[] = {0,0,0};
+  ok = HAL_DMA_Start(&hdma_tim1_up, (uint32_t)data, (uint32_t)&target, 3);
   // ok = HAL_DMA_Start(&hdma_tim1_up, (uint32_t)data, (uint32_t)&target, sizeof(data) / sizeof(uint8_t));
 	if (!ok) {
 		printf("DMA OK\n");
 	} else {
 		printf("DMA ERR\n");
 	}
-  // __HAL_TIM_ENABLE_DMA(&htim1, TIM_DMA_UPDATE);
+  __HAL_TIM_ENABLE_DMA(&htim1, TIM_DMA_UPDATE);
+  __HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
 
   /* USER CODE END 2 */
-	printf("ztest\n");
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
+  volatile uint32_t x;
+  while (++x)
   {
+    if (target[0] == 0xFD && target[1] == 0xFD && !target[2] && !(x % 3301)) {
+      printf("DMA xfer to target OK\n");
+    } else if ((target[0] != 0xFD || target[1] != 0xFD || target[2]) && !(x % 3301)) {
+      printf("DMA xfer to target BUG\n");
+    }
     /* USER CODE END WHILE */
-		volatile uint8_t x = __HAL_TIM_GET_COUNTER(&htim1);
-		if (x % 3301) {
-			printf("tick\n");
-		}
 
     /* USER CODE BEGIN 3 */
   }
@@ -161,7 +163,7 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
@@ -186,15 +188,12 @@ static void MX_TIM1_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig = {0};
 
   /* USER CODE BEGIN TIM1_Init 1 */
-  /* please change below */
-  // htim1.Init.Prescaler = 47999;
-  // htim1.Init.Period = 874;
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 47999;
+  htim1.Init.Prescaler = 49999;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 874;
+  htim1.Init.Period = 499;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -207,7 +206,7 @@ static void MX_TIM1_Init(void)
   {
     Error_Handler();
   }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
   {
@@ -260,6 +259,12 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+// This callback is automatically called by the HAL on the UEV event
+  if(htim->Instance == TIM1)
+    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+}
 
 /* USER CODE END 4 */
 

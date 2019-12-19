@@ -70,4 +70,6 @@
 - `HAL_UART_Transmit_DMA` sets `XferCpltCallback` automatically
 - Only USART2 is connected to the ST-LINK for nucleo-64 boards: Ref: UM1724; http://www.emcu.eu/how-to-manage-two-uart-usart2-and-usart1-under-interrupt/
     - USART1 can't receive data
+- DMA1/2 might not connect to some peripherals: Ref: https://electronics.stackexchange.com/questions/298794/dma-triggered-by-timer-using-stm32f4-discovery-board/299169
+- When memory-to-memory mode is used, the circular and direct modes are not allowed. Only the DMA2 controller is able to perform memory-to-memory transfers. Ref: RM0390
 

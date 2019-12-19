@@ -54,6 +54,7 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+void tim_xfer_cplt(DMA_HandleTypeDef *hdma);
 
 /* USER CODE END EFP */
 
