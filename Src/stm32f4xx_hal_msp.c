@@ -98,17 +98,14 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     /* TIM1_UP Init */
     hdma_tim1_up.Instance = DMA2_Stream5;
     hdma_tim1_up.Init.Channel = DMA_CHANNEL_6;
-    hdma_tim1_up.Init.Direction = DMA_MEMORY_TO_MEMORY;
-    hdma_tim1_up.Init.PeriphInc = DMA_PINC_ENABLE;
+    hdma_tim1_up.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_tim1_up.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_tim1_up.Init.MemInc = DMA_MINC_ENABLE;
     hdma_tim1_up.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_tim1_up.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_tim1_up.Init.Mode = DMA_NORMAL;
+    hdma_tim1_up.Init.Mode = DMA_CIRCULAR;
     hdma_tim1_up.Init.Priority = DMA_PRIORITY_LOW;
-    hdma_tim1_up.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    hdma_tim1_up.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    hdma_tim1_up.Init.MemBurst = DMA_MBURST_SINGLE;
-    hdma_tim1_up.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    hdma_tim1_up.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_tim1_up) != HAL_OK)
     {
       Error_Handler();

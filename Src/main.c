@@ -61,7 +61,7 @@ static void MX_TIM1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 extern void initialise_monitor_handles(void);
-uint8_t data[] = {0xFD, 0xFD, 0x00}; // TODO: WHY all 0xFD in target?
+uint8_t data[] = {0xFF, 0x00};
 /* USER CODE END 0 */
 
 /**
@@ -104,9 +104,7 @@ int main(void)
 	} else {
 		printf("TIM ERR\n");
 	}
-  uint8_t target[] = {0,0,0};
-  ok = HAL_DMA_Start(&hdma_tim1_up, (uint32_t)data, (uint32_t)&target, 3);
-  // ok = HAL_DMA_Start(&hdma_tim1_up, (uint32_t)data, (uint32_t)&target, sizeof(data) / sizeof(uint8_t));
+  ok = HAL_DMA_Start(&hdma_tim1_up, (uint32_t)data, (uint32_t)&GPIOA->ODR, 2);
 	if (!ok) {
 		printf("DMA OK\n");
 	} else {
@@ -122,11 +120,10 @@ int main(void)
   volatile uint32_t x;
   while (++x)
   {
-    if (target[0] == 0xFD && target[1] == 0xFD && !target[2] && !(x % 3301)) {
-      printf("DMA xfer to target OK\n");
-    } else if ((target[0] != 0xFD || target[1] != 0xFD || target[2]) && !(x % 3301)) {
-      printf("DMA xfer to target BUG\n");
+    if (!(x % 3301)) {
+      printf("counter x\n");
     }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -262,8 +259,9 @@ static void MX_GPIO_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 // This callback is automatically called by the HAL on the UEV event
-  if(htim->Instance == TIM1)
-    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+  if(htim->Instance == TIM1) {
+    printf("%s\n", __PRETTY_FUNCTION__);
+  }
 }
 
 /* USER CODE END 4 */
