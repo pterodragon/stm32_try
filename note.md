@@ -13,9 +13,11 @@
 - CPLT = complete
 - CRC = Cyclic redundancy check
 - D- = Data- (e.g. D-bus = data bus)
+- DTS = Dead-time signal
 - ADC = Digital to analog converter
 - DMA = direct memory access
 - EXTI = External Interrupt/Event Controller
+- ETR = External trigger
 - FLITF = Flash memory interface
 - FMC = Flexible memory controller
 - FSMC = Flexible static memory controller
@@ -30,6 +32,7 @@
 - IWDT = Independent watchdog
 - I2C = Inter-Integrated Circuit (eye squared see)
 - I- = instruction- (e.g. I-bus = instruction bus)
+- ITR = Internal trigger
 - LSE = Low Speed External
 - LSI = Low Speed Internal
 - MCO = Master Clock Output
