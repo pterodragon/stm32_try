@@ -8,6 +8,7 @@
 - CAL = calibration
 - CMSIS = Cortex Microcontroller Software Interface Standard
 - CCM = Core Coupled Memory 
+- CCR = Capture/Compare register
 - COM = communication
 - CSS = Clock Security System
 - CPLT = complete
