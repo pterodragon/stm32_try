@@ -17,6 +17,7 @@
 - DTS = Dead-time signal
 - ADC = Digital to analog converter
 - DMA = direct memory access
+- EMI = Electromagnetic interference
 - EXTI = External Interrupt/Event Controller
 - ETR = External trigger
 - FLITF = Flash memory interface
