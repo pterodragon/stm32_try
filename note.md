@@ -31,6 +31,7 @@
 - H- = handle of- (in code e.g. hdma)
 - IRQ = interrupt request
 - ISR = interrupt service routine
+- IV = Initialization vector
 - IWDT = Independent watchdog
 - I2C = Inter-Integrated Circuit (eye squared see)
 - I- = instruction- (e.g. I-bus = instruction bus)
