@@ -15,9 +15,11 @@
 - CRC = Cyclic redundancy check
 - D- = Data- (e.g. D-bus = data bus)
 - DTS = Dead-time signal
+- DWT = Data Watchpoint and Tracing
 - ADC = Digital to analog converter
 - DMA = direct memory access
 - EMI = Electromagnetic interference
+- EOC = End of conversion
 - EXTI = External Interrupt/Event Controller
 - ETR = External trigger
 - FLITF = Flash memory interface
@@ -36,6 +38,7 @@
 - I2C = Inter-Integrated Circuit (eye squared see)
 - I- = instruction- (e.g. I-bus = instruction bus)
 - ITR = Internal trigger
+- LP = Low Power
 - LSE = Low Speed External
 - LSI = Low Speed Internal
 - MCO = Master Clock Output
@@ -53,11 +56,14 @@
 - P- = peripheral-
 - RCC = Reset and clock controller
 - RTC = Real Time Clock
+- SAR = Successive approximation register
+- SHA = Sample-and-hold
 - SPI = Serial Peripheral Interface
 - SW = System Clock Switch
 - SYSCLK = System Clock Frequency
 - S- = system- (e.g. S-bus = system bus)
 - TIM = Timer
+- TRGO = trigger output
 - TTL = transitor transitor logic
 - UART = Universal Asynchronous Receiver/Transmitter
 - UIF = Update Interrupt Flag
