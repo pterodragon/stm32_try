@@ -14,9 +14,9 @@
 - CPLT = complete
 - CRC = Cyclic redundancy check
 - D- = Data- (e.g. D-bus = data bus)
+- DAC = Digital to analog converter
 - DTS = Dead-time signal
 - DWT = Data Watchpoint and Tracing
-- ADC = Digital to analog converter
 - DMA = direct memory access
 - EMI = Electromagnetic interference
 - EOC = End of conversion

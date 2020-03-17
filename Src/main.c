@@ -97,7 +97,7 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_ADC_Start(&hadc1);
+  HAL_ADC_Start_IT(&hadc1);
 
   /* USER CODE END 2 */
 
@@ -108,21 +108,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    char msg[20];
-    uint16_t rawValue;
-    float temp;
-
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-
-    rawValue = HAL_ADC_GetValue(&hadc1);
-    temp = ((float)rawValue) / 4095 * 3300;
-    temp = ((temp - 760.0) / 2.5) + 25;
-
-    sprintf(msg, "rawValue: %hu\r\n", rawValue);
-    HAL_UART_Transmit(&huart2, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
-
-    sprintf(msg, "Temperature: %f\r\n", temp);
-    HAL_UART_Transmit(&huart2, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
   }
   /* USER CODE END 3 */
 }
@@ -279,6 +264,23 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+    char msg[20];
+    uint16_t rawValue;
+    float temp;
+
+    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+
+    rawValue = HAL_ADC_GetValue(&hadc1);
+    temp = ((float)rawValue) / 4095 * 3300;
+    temp = ((temp - 760.0) / 2.5) + 25;
+
+    sprintf(msg, "rawValue: %hu\r\n", rawValue);
+    HAL_UART_Transmit(&huart2, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
+
+    sprintf(msg, "Temperature: %f\r\n", temp);
+    HAL_UART_Transmit(&huart2, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
+}
 
 /* USER CODE END 4 */
 
