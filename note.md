@@ -50,6 +50,7 @@
 - OpenOCD = Open on chip debugger
 - OPM = One pulse mode
 - OTG = on the go
+- OVR = overrun
 - PER = peripheral
 - PLL = Phase-Locked Loops
 - PWM = Pulse-width modulation
