@@ -35,8 +35,8 @@
 - ISR = interrupt service routine
 - IV = Initialization vector
 - IWDT = Independent watchdog
-- I2C = Inter-Integrated Circuit (eye squared see)
 - I- = instruction- (e.g. I-bus = instruction bus)
+- I2C = Inter-Integrated Circuit (eye squared see)
 - ITR = Internal trigger
 - LP = Low Power
 - LSE = Low Speed External
@@ -51,18 +51,20 @@
 - OPM = One pulse mode
 - OTG = on the go
 - OVR = overrun
+- P- = peripheral-
 - PER = peripheral
 - PLL = Phase-Locked Loops
 - PWM = Pulse-width modulation
-- P- = peripheral-
 - RCC = Reset and clock controller
 - RTC = Real Time Clock
+- S- = system- (e.g. S-bus = system bus)
 - SAR = Successive approximation register
+- SCL = Serial clock line
+- SDA = Serial data line
 - SHA = Sample-and-hold
 - SPI = Serial Peripheral Interface
 - SW = System Clock Switch
 - SYSCLK = System Clock Frequency
-- S- = system- (e.g. S-bus = system bus)
 - TIM = Timer
 - TRGO = trigger output
 - TTL = transitor transitor logic
