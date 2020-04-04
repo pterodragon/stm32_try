@@ -23,8 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <string.h>
-#include <stdlib.h>
 
 /* USER CODE END Includes */
 
@@ -43,7 +41,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-I2C_HandleTypeDef hi2c1;
+UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
@@ -52,61 +50,22 @@ I2C_HandleTypeDef hi2c1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_I2C1_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
+
+void SleepMode(void);
+void StandbyMode(void);
+void StopMode(void);
+void MX_GPIO_Deinit(void);
+// void MX_GPIO_Init(void);
+// void MX_USART2_UART_Init(void);
+
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 extern void initialise_monitor_handles(void);
-
-HAL_StatusTypeDef Read_From_24LCxx(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint8_t *pData, uint16_t len) {
-  HAL_StatusTypeDef returnValue;
-  uint8_t addr[2];
-
-  /* We compute the MSB and LSB parts of the memory address */
-  addr[0] = (uint8_t) ((MemAddress & 0xFF00) >> 8);
-  addr[1] = (uint8_t) (MemAddress & 0xFF);
-
-  /* First we send the memory location address where start reading data */
-  returnValue = HAL_I2C_Master_Transmit(hi2c, DevAddress, addr, 2, HAL_MAX_DELAY);
-  if(returnValue != HAL_OK)
-    return returnValue;
-
-  /* Next we can retrieve the data from EEPROM */
-  returnValue = HAL_I2C_Master_Receive(hi2c, DevAddress, pData, len, HAL_MAX_DELAY);
-
-  return returnValue;
-}
-
-HAL_StatusTypeDef Write_To_24LCxx(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint8_t *pData, uint16_t len) {
-  HAL_StatusTypeDef returnValue;
-  uint8_t *data;
-
-  /* First we allocate a temporary buffer to store the destination memory
-   * address and the data to store */
-  data = (uint8_t*)malloc(sizeof(uint8_t)*(len+2));
-
-  /* We compute the MSB and LSB parts of the memory address */
-  data[0] = (uint8_t) ((MemAddress & 0xFF00) >> 8);
-  data[1] = (uint8_t) (MemAddress & 0xFF);
-
-  /* And copy the content of the pData array in the temporary buffer */
-  memcpy(data+2, pData, len);
-
-  /* We are now ready to transfer the buffer over the I2C bus */
-  returnValue = HAL_I2C_Master_Transmit(hi2c, DevAddress, data, len + 2, HAL_MAX_DELAY);
-  if(returnValue != HAL_OK)
-    return returnValue;
-
-  free(data);
-
-  /* We wait until the EEPROM effectively stores data in memory */
-  while(HAL_I2C_Master_Transmit(hi2c, DevAddress, 0, 0, HAL_MAX_DELAY) != HAL_OK);
-
-  return HAL_OK;
-}
 /* USER CODE END 0 */
 
 /**
@@ -116,6 +75,7 @@ HAL_StatusTypeDef Write_To_24LCxx(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, 
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  char msg[20];
 #ifdef DEBUG
     initialise_monitor_handles();
 #endif
@@ -127,7 +87,8 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  HAL_DBGMCU_EnableDBGSleepMode();
+  HAL_DBGMCU_EnableDBGStopMode();
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -139,29 +100,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C1_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  const char wmsg[] = "We love STM32!";
-  char rmsg[20];
 
-  // using HAL
-	HAL_I2C_Mem_Write(&hi2c1, 0xA0, 0x1AAA, I2C_MEMADD_SIZE_16BIT, (uint8_t*)wmsg, strlen(wmsg)+1, HAL_MAX_DELAY);
-
-	while(HAL_I2C_IsDeviceReady(&hi2c1, 0xA0, 1, HAL_MAX_DELAY) != HAL_OK);
-
-	HAL_I2C_Mem_Read(&hi2c1, 0xA0, 0x1AAA, I2C_MEMADD_SIZE_16BIT, (uint8_t*)rmsg, strlen(wmsg)+1, HAL_MAX_DELAY);
-
-  // Useful for understanding the concept
-  // Write_To_24LCxx(&hi2c1, 0xA0, 0x1AAA, (uint8_t*)wmsg, strlen(wmsg)+1);
-  // Read_From_24LCxx(&hi2c1, 0xA0, 0x1AAA, (uint8_t*)rmsg, strlen(wmsg)+1);
-
-  if(strcmp(wmsg, rmsg) == 0) {
-    while(1) {
-      HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-      HAL_Delay(100);
-    }
-  }
-
+  __HAL_RCC_PWR_CLK_ENABLE();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -171,6 +113,52 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    if(__HAL_PWR_GET_FLAG(PWR_FLAG_SB)) {
+      /* If standby flag set in PWR->CSR, then the reset is generated from
+       * the exit of the standby mode */
+      sprintf(msg, "RESET after STANDBY mode\r\n");
+      HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+      /* We have to explicitly clear the flag */
+      __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU|PWR_FLAG_SB);
+    }
+
+    sprintf(msg, "MCU in run mode\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+    while(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET) {
+      HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+      HAL_Delay(100);
+    }
+
+    HAL_Delay(200);
+
+    sprintf(msg, "Entering in SLEEP mode\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+
+    SleepMode();
+
+    sprintf(msg, "Exiting from SLEEP mode\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+
+    while(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET);
+    HAL_Delay(200);
+
+    sprintf(msg, "Entering in STOP mode\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+
+    StopMode();
+
+    sprintf(msg, "Exiting from STOP mode\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+
+    while(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET);
+    HAL_Delay(200);
+
+    sprintf(msg, "Entering in STANDBY mode\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+
+    StandbyMode();
+
+    while(1); //Never arrives here, since MCU is reset when exiting from STANDBY
   }
   /* USER CODE END 3 */
 }
@@ -220,36 +208,35 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief I2C1 Initialization Function
+  * @brief USART2 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_I2C1_Init(void)
+static void MX_USART2_UART_Init(void)
 {
 
-  /* USER CODE BEGIN I2C1_Init 0 */
+  /* USER CODE BEGIN USART2_Init 0 */
 
-  /* USER CODE END I2C1_Init 0 */
+  /* USER CODE END USART2_Init 0 */
 
-  /* USER CODE BEGIN I2C1_Init 1 */
+  /* USER CODE BEGIN USART2_Init 1 */
 
-  /* USER CODE END I2C1_Init 1 */
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
-  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN I2C1_Init 2 */
+  /* USER CODE BEGIN USART2_Init 2 */
 
-  /* USER CODE END I2C1_Init 2 */
+  /* USER CODE END USART2_Init 2 */
 
 }
 
@@ -263,11 +250,18 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : B1_Pin */
+  GPIO_InitStruct.Pin = B1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LD2_Pin */
   GPIO_InitStruct.Pin = LD2_Pin;
@@ -276,10 +270,158 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
 
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 }
 
 /* USER CODE BEGIN 4 */
+void SleepMode(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct;
 
+  /* Disable all GPIOs to reduce power */
+  MX_GPIO_Deinit();
+
+  /* Configure User push-button as external interrupt generator */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  GPIO_InitStruct.Pin = B1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
+
+  HAL_UART_DeInit(&huart2);
+
+  /* Suspend Tick increment to prevent wakeup by Systick interrupt.
+     Otherwise the Systick interrupt will wake up the device within 1ms (HAL time base) */
+  HAL_SuspendTick();
+
+  __HAL_RCC_PWR_CLK_ENABLE();
+  /* Request to enter SLEEP mode */
+  HAL_PWR_EnterSLEEPMode(0, PWR_SLEEPENTRY_WFI);
+
+  /* Resume Tick interrupt if disabled prior to sleep mode entry*/
+  HAL_ResumeTick();
+
+  /* Reinitialize GPIOs */
+  MX_GPIO_Init();
+
+  /* Reinitialize UART2 */
+  MX_USART2_UART_Init();
+}
+
+void StopMode(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+  /* Disable all GPIOs to reduce power */
+  MX_GPIO_Deinit();
+
+  /* Configure User push-button as external interrupt generator */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  GPIO_InitStruct.Pin = B1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
+
+  HAL_UART_DeInit(&huart2);
+
+  /* Suspend Tick increment to prevent wakeup by Systick interrupt.
+     Otherwise the Systick interrupt will wake up the device within 1ms (HAL time base) */
+  HAL_SuspendTick();
+
+  /* We enable again the PWR peripheral */
+  __HAL_RCC_PWR_CLK_ENABLE();
+  /* Request to enter SLEEP mode */
+  HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
+  /* Resume Tick interrupt if disabled prior to sleep mode entry*/
+  HAL_ResumeTick();
+
+  /* Reinitialize GPIOs */
+  MX_GPIO_Init();
+
+  /* Reinitialize UART2 */
+  MX_USART2_UART_Init();
+}
+
+
+void StandbyMode(void) {
+  MX_GPIO_Deinit();
+
+  /* This procedure come from the STM32F030 Errata sheet*/
+  __HAL_RCC_PWR_CLK_ENABLE();
+
+  HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);
+
+  /* Clear PWR wake up Flag */
+  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+
+  /* Enable WKUP pin */
+  HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
+
+  /* Enter STANDBY mode */
+  HAL_PWR_EnterSTANDBYMode();
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  if(GPIO_Pin == B1_Pin) {
+    while(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET);
+  }
+}
+
+// void MX_GPIO_Init(void)
+// {
+// 
+//   GPIO_InitTypeDef GPIO_InitStruct;
+// 
+//   /* GPIO Ports Clock Enable */
+//   __GPIOC_CLK_ENABLE();
+//   __GPIOH_CLK_ENABLE();
+//   __GPIOA_CLK_ENABLE();
+//   __GPIOB_CLK_ENABLE();
+// 
+//   /*Configure GPIO pin : PC13 */
+//   GPIO_InitStruct.Pin = GPIO_PIN_13;
+//   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+//   GPIO_InitStruct.Pull = GPIO_NOPULL;
+//   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+// 
+//   /*Configure GPIO pin : LD2_Pin */
+//   GPIO_InitStruct.Pin = LD2_Pin;
+//   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//   GPIO_InitStruct.Pull = GPIO_NOPULL;
+//   GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+//   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
+// 
+//   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+// }
+
+void MX_GPIO_Deinit(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+  /* Configure all GPIO as analog to reduce current consumption on non used IOs */
+  /* Enable GPIOs clock */
+  /* Warning : Reconfiguring all GPIO will close the connection with the debugger */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pin = GPIO_PIN_All;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /* Disable GPIOs clock */
+  __HAL_RCC_GPIOA_CLK_DISABLE();
+  __HAL_RCC_GPIOB_CLK_DISABLE();
+  __HAL_RCC_GPIOC_CLK_DISABLE();
+}
 /* USER CODE END 4 */
 
 /**
