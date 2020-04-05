@@ -59,6 +59,7 @@
 - ITM = Instrumentation Trace Macrocell
 - ITR = Internal trigger
 - JTAG = Joint Test Action Group
+- LMA = Load memory address
 - LP = Low Power
 - LSE = Low Speed External
 - LSI = Low Speed Internal
@@ -118,6 +119,7 @@
 - USART = Universal Synchronous and Asynchronous Receiver/Transmitter
 - VBAT = voltage from battery (power supply when VDD is turned off)
 - VCP = virtual COM port
+- VMA = virtual memory address
 - WDT = watchdog timer
 - WFE = wait for event
 - WFI = wait for interrupt
