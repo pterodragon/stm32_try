@@ -6,6 +6,8 @@ MEMORY
     SRAM (xrw)  : ORIGIN = 0x20000000, LENGTH = 128K
 }
  
+ ENTRY(_start)
+ 
 /* output sections */
 SECTIONS
 {
@@ -13,15 +15,25 @@ SECTIONS
     .text : ALIGN(4)
     {
         *(.isr_vector)    /* Vector table */
-        *(.text)          /* Program code */
+        *(.text .text*)          /* Program code */
         KEEP(*(.isr_vector))
     } >FLASH
  
     /* Initialized global and static variables (which 
        we don't have any in this example) into SRAM */
-    .data :
-    {
-        *(.data)           
-    } >SRAM
-}    
 
+    /* Used by the startup to initialize data */
+    _sidata = LOADADDR(.data);     
+       
+    .data : ALIGN(4)
+    {
+        . = ALIGN(4);
+        _sdata = .;        /* create a global symbol at data start */
+        
+        *(.data)
+        *(.data*)
+        
+        . = ALIGN(4);
+        _edata = .;        /* define a global symbol at data end */        
+    } >SRAM AT>FLASH
+}    
