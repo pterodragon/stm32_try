@@ -6,8 +6,8 @@ MEMORY
     SRAM (xrw)  : ORIGIN = 0x20000000, LENGTH = 128K
 }
  
- ENTRY(_start)
- 
+ ENTRY(_start);
+
 /* output sections */
 SECTIONS
 {
@@ -47,6 +47,20 @@ SECTIONS
 		  . = ALIGN(4);
 		  _ebss = .;         /* define a global symbol at bss end */
 		} >SRAM
+	
+		_end_static = _ebss;
+		_Heap_Size = 0x10000;  /* not sure why incr is ~=2000 even if malloc(10) */
+		_Heap_Limit = _end_static + _Heap_Size;
+		_Min_Stack_Size = 0x400;		
+		
+	  /* User_heap_stack section, used to check that there is enough RAM left */
+		._user_heap_stack :
+		{
+		  . = ALIGN(4);
+		  . = . + _Heap_Size;
+		  . = . + _Min_Stack_Size;
+		  . = ALIGN(4);
+		} >SRAM
 		
 	  /* Constant data goes into FLASH */
 	  .rodata : ALIGN(4)
@@ -54,4 +68,5 @@ SECTIONS
 	    *(.rodata)         /* .rodata sections (constants) */
 	    *(.rodata*)        /* .rodata* sections (strings, etc.) */
 	  } >FLASH
+	
 }    

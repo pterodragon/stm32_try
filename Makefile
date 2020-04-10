@@ -65,8 +65,8 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
--IInc
-
+-IInc \
+-Inewlib-cygwin/newlib/libc/include
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -88,8 +88,21 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # link script
 LDSCRIPT = Src/ldscript.ld
 
+LIBDIR = -L/usr/arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard
 # libraries
-LDFLAGS = -T$(LDSCRIPT)
+LIBS = -lc -lm
+ifeq ($(DEBUG), 1)
+LIBS += -lrdimon
+else
+LIBS += -lnosys
+endif
+
+LDFLAGS = -T$(LDSCRIPT) $(LIBS) $(LIBDIR)
+# ifeq ($(DEBUG), 1)
+# LDFLAGS += -specs=rdimon.specs
+# else
+# LDFLAGS +=
+# endif
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
@@ -112,7 +125,7 @@ $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
-	$(LD) $(OBJECTS) $(LDFLAGS) -o $@  # changed to LD
+	$(LD) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
