@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+    toolchain:
+        container_name: stm32_toolchain
+        image: stm32_toolchain_image
+        build:
+            context: ./
+            dockerfile: ./Dockerfile.toolchain
+        stdin_open: true
+        tty: true
+        volumes:
+            - ./:/home/wing/Documents/github/stm32_try
+        cap_add:
+            - SYS_PTRACE
+        security_opt:
+            - seccomp:unconfined
+        network_mode: "host"

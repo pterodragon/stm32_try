@@ -1,0 +1,22 @@
+FROM archlinux/base:latest
+
+RUN pacman -Syu --noconfirm && pacman --noconfirm -S \
+    arm-none-eabi-binutils \
+    arm-none-eabi-newlib \
+    arm-none-eabi-gcc \
+    ninja \
+    cmake \
+    zip \
+    git
+
+RUN pacman --noconfirm -S base-devel
+
+RUN pacman --noconfirm -S sudo
+RUN useradd -ms /bin/bash wing
+RUN passwd -d wing
+
+RUN printf 'wing ALL=(ALL) ALL\n' | tee -a /etc/sudoers # Allow wing passwordless sudo
+USER wing
+
+RUN mkdir -p /home/wing/Documents/github
+WORKDIR /home/wing/
