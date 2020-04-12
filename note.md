@@ -6,6 +6,7 @@
 - APB = Advanced Peripheral Bus
 - ARR = Auto reload register
 - ART accelerator = Adaptive real time memory accelerator
+- AXI = Advanced extensible interface
 - BAM = Batch Acquisition Mode
 - BAT = battery
 - BFAR = BusFault Address Register
@@ -67,18 +68,22 @@
 - MCU = Microcontroller unit
 - MISO = master input slave output
 - MMFAR = MemManage Fault Address Register
+- MMU = memory management unit
 - MOSFET = metal–oxide–semiconductor field-effect transistor
 - MOSI = master output slave input
+- MPU = memory protection unit
 - MSI = Multispeed Internal
 - MSP = (1) MCU support package
 - MSP = (2) main stack pointer
 - MTB = Micro trace buffer
 - NMI = non maskable interrupt
 - NVIC = Nested Vectored Interrupt Controller
+- NVM = non volatile memory
 - OEM = Original Equipment Manufacturer
 - OpenOCD = Open on chip debugger
 - OPM = One pulse mode
 - OTG = on the go
+- OTP = one-time programmable
 - OVR = overrun
 - P- = peripheral-
 - PCC = power consumption calculator
@@ -93,6 +98,7 @@
 - RTC = Real Time Clock
 - S- = system- (e.g. S-bus = system bus)
 - SAR = Successive approximation register
+- SCB = System control block
 - SCL = Serial clock line
 - SCLK = Serial clock line
 - SCK = Serial clock line
@@ -109,6 +115,7 @@
 - SWV = Serial Wire Viewer
 - SYSCLK = System Clock Frequency
 - SVC = Supervisor call
+- TCM = Tightly Coupled Memory
 - TFT = Thin-film-transistor
 - TIM = Timer
 - TRGO = trigger output
@@ -120,6 +127,7 @@
 - VBAT = voltage from battery (power supply when VDD is turned off)
 - VCP = virtual COM port
 - VMA = virtual memory address
+- VTOR = vector table offset register
 - WDT = watchdog timer
 - WFE = wait for event
 - WFI = wait for interrupt
@@ -137,4 +145,20 @@
     - USART1 can't receive data
 - DMA1/2 might not connect to some peripherals: Ref: https://electronics.stackexchange.com/questions/298794/dma-triggered-by-timer-using-stm32f4-discovery-board/299169
 - When memory-to-memory mode is used, the circular and direct modes are not allowed. Only the DMA2 controller is able to perform memory-to-memory transfers. Ref: RM0390
+
+### Compiler/Linker options
+- `-nostartfiles` prevents linking `crt0.o` which is a c runtime startup file
+    - see `arm-none-eabi-objdump -d /usr/arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/crt0.o`
+- `-nodefaultlibs` prevents linking of `libgcc.a` which is to provide subroutine to override shortcoming of some archiecture, like providing a software emulation of long floating point division
+    - see `/usr/lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard/libgcc.a` (and the software floating point version for comparison)
+- `-nostdlib` means both flags `-nostartfiles` and `-nodefaultlibs`
+- reference: http://cs107e.github.io/guides/gcc/
+
+### nosys/rdimon specs
+- nosys means retargeting `printf` etc. to UART
+- rdimon enables semihosting
+- reference:
+    - https://www.openstm32.org/Other%2BManuals
+    - see `Drivers/STM32F4xx_HAL_Driver/Src/retarget/retarget.c`
+
 

@@ -3,4 +3,4 @@ if [ -z "$elf_file" ]
 then
     elf_file=build/stm32_try.elf
 fi
-arm-none-eabi-objdump -h $elf_file
+arm-none-eabi-objdump -x -D -z $elf_file

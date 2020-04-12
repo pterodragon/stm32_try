@@ -2,11 +2,14 @@
 
 MEMORY
 {
-    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 512K
+    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 16K /* Just the first sector */
     SRAM (xrw)  : ORIGIN = 0x20000000, LENGTH = 128K
 }
  
  ENTRY(_start);
+ 
+ __stack = ORIGIN(SRAM) + LENGTH(SRAM);
+_estack = __stack; 	/* STM specific definition */
 
 /* output sections */
 SECTIONS
@@ -43,13 +46,15 @@ SECTIONS
 	  
 		  *(.bss)
 		  *(.bss*)
+		  *(COMMON)
 		  		
 		  . = ALIGN(4);
 		  _ebss = .;         /* define a global symbol at bss end */
 		} >SRAM
-	
+    __bss_start__ = _sbss;
+    __bss_end__ = _ebss;
 		_end_static = _ebss;
-		_Heap_Size = 0x10000;  /* not sure why incr is ~=2000 even if malloc(10) */
+		_Heap_Size = 0x190;
 		_Heap_Limit = _end_static + _Heap_Size;
 		_Min_Stack_Size = 0x400;		
 		
@@ -57,6 +62,9 @@ SECTIONS
 		._user_heap_stack :
 		{
 		  . = ALIGN(4);
+      PROVIDE ( end = . );
+      PROVIDE ( _end = . );
+      PROVIDE ( __end__ = . ); 
 		  . = . + _Heap_Size;
 		  . = . + _Min_Stack_Size;
 		  . = ALIGN(4);
