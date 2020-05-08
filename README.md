@@ -7,12 +7,21 @@
     - $ `sudo apt-get install openjdk-8`
     - $ `sudo apt install openjfx=8u161-b12-1ubuntu2 libopenjfx-java=8u161-b12-1ubuntu2 libopenjfx-jni=8u161-b12-1ubuntu2`
     - $ `sudo update-alternatives --config java  # choose openjdk-8 jre`
+    - For ubuntu 20.04, go to `/etc/apt/sources.list`, add
+        - `deb-src http://mirrors.kernel.org/ubuntu/ bionic main universe`
+        - install the same thing above
 
     STM32CubeMX and STM32CubeProgrammer are Java programs and require the above
 1. Install openocd (for debugging and flashing)
     - go to official website or
     - $ `git clone git://repo.or.cz/openocd.git`
+        - As of commit 968d3851e742ffa74b7f817d54f23db1d85929ef
+        - $ `sudo apt-get install libtool`
+        - $ `./bootstrap`  # under openocd git repository
+        - $ `./configure`  # under openocd git repository
         - $ `sudo make install`  # under openocd git repository
+    - $ `sudo cp openocd/contrib/60-openocd.rules /etc/udev/rules.d`
+    - $ `sudo usermod -a -G plugdev $USER`
 2. Install STM32CubeMX, STM32CubeProgrammer
     - go to ST official website to download. Extract the zipped file and launch the install executable
 
@@ -21,8 +30,10 @@
     - $ `sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa`
     - $ `sudo apt-get update`
     - $ `sudo apt-get install gcc-arm-embedded`
-
     This includes the `arm-none-eabi-gdb` for debugging
+    - For ubuntu 20.04,
+        - `sudo apt-get install gdb-multiarch`
+        - use `gdb-multiarch` in place of `arm-none-eabi-gdb`
 
 ### Creating the project 
 4. STM32CubeMX
