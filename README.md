@@ -1,6 +1,10 @@
+# Note
+
+check `expected_result.md` for more information of this commit
+
 # STM32F446RE Nucleo-64 development starter/notes
 
-- Development environment: Ubuntu18.04
+- Development environment: Ubuntu18.04/20.04
 
 ### Installing things
 0. Install openjdk-8, openjfx-8 [[1]](#reference-sites)
