@@ -51,6 +51,12 @@ const osThreadAttr_t defaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
+
+const osThreadAttr_t UARTTask_attributes = {
+  .name = "UARTTask",
+  .priority = (osPriority_t) osPriorityAboveNormal,
+  .stack_size = 128 * 4
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -72,6 +78,14 @@ void blinkThread(void *argument) {
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
     osDelay(500);
   }
+  // osThreadTerminate(NULL);
+}
+
+void UARTThread(void const *argument) {
+  while(1) {
+    HAL_UART_Transmit(&huart2, "UARTThread\r\n", strlen("UARTThread\r\n"), HAL_MAX_DELAY);
+  }
+  // osThreadTerminate(NULL);
 }
 
 /* USER CODE END 0 */
@@ -135,6 +149,7 @@ int main(void)
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   osThreadId_t blink = osThreadNew(blinkThread, NULL, &defaultTask_attributes);
+  osThreadId_t uart = osThreadNew(UARTThread, NULL, &UARTTask_attributes);
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
