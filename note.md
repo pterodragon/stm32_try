@@ -121,6 +121,7 @@
 - TRGO = trigger output
 - TTL = transitor transitor logic
 - UART = Universal Asynchronous Receiver/Transmitter
+- TCB = Thread control block
 - UIF = Update Interrupt Flag
 - UEV = Update Event
 - USART = Universal Synchronous and Asynchronous Receiver/Transmitter

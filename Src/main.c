@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include <string.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -51,12 +52,6 @@ const osThreadAttr_t defaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
-
-const osThreadAttr_t UARTTask_attributes = {
-  .name = "UARTTask",
-  .priority = (osPriority_t) osPriorityAboveNormal,
-  .stack_size = 128 * 4
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -74,6 +69,8 @@ void StartDefaultTask(void *argument);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void blinkThread(void *argument) {
+  volatile uint8_t arr[1024];
+  arr[1023] = 0;
   while(1) {
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
     osDelay(500);
@@ -81,13 +78,10 @@ void blinkThread(void *argument) {
   // osThreadTerminate(NULL);
 }
 
-void UARTThread(void const *argument) {
-  while(1) {
-    HAL_UART_Transmit(&huart2, "UARTThread\r\n", strlen("UARTThread\r\n"), HAL_MAX_DELAY);
-  }
-  // osThreadTerminate(NULL);
+void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed portCHAR *pcTaskName) {
+    asm("BKPT #0"); /* If a stack overflow is detected then, the debugger stop
+the firmware execution here */
 }
-
 /* USER CODE END 0 */
 
 /**
@@ -149,7 +143,7 @@ int main(void)
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   osThreadId_t blink = osThreadNew(blinkThread, NULL, &defaultTask_attributes);
-  osThreadId_t uart = osThreadNew(UARTThread, NULL, &UARTTask_attributes);
+
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */

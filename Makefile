@@ -120,6 +120,7 @@ C_DEFS =  \
 
 ifeq ($(DEBUG), 1)
 C_DEFS += -DDEBUG 
+C_DEFS += -DconfigCHECK_FOR_STACK_OVERFLOW=2 
 endif
 
 # AS includes
