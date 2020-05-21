@@ -5,7 +5,8 @@
 #include <sys/times.h>
 #include <limits.h>
 #include <signal.h>
-#include <../system/include/retarget/retarget.h>
+#include <stdio.h>
+#include <retarget/retarget.h>
 #include <stdint.h>
 
 #if !defined(OS_USE_SEMIHOSTING)

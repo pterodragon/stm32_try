@@ -21,10 +21,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include <string.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include "retarget/retarget.h"
 
 /* USER CODE END Includes */
 
@@ -46,21 +47,28 @@
 UART_HandleTypeDef huart2;
 
 /* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
+// !!!!!! too small or too big stack sizes lead to weird error
+const osThreadAttr_t UARTThread_attributes = {
+  .name = "UART",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 128 * 4
+  .stack_size = 2048 * 4 // !!! matters
+};
+const osThreadAttr_t blinkThread_attributes = {
+  .name = "blink",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = 1024 * 4 // !!! matters
 };
 /* USER CODE BEGIN PV */
-
+const osMessageQueueAttr_t msg_q_attr = {
+    .name = "MsgBox",
+};
+osMessageQueueId_t q_id;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
-void StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -68,14 +76,34 @@ void StartDefaultTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+extern void initialise_monitor_handles(void);
+
 void blinkThread(void *argument) {
-  volatile uint8_t arr[1024];
-  arr[1023] = 0;
+  uint16_t delay = 500; /* Default delay */
+
   while(1) {
+    uint16_t msg;
+    uint8_t msg_priority = 0;
+    osStatus_t status = osMessageQueueGet(q_id, &msg, &msg_priority, 1);
+    // printf("get status: %lu\n", (uint32_t)status);
+    if(status == osOK) delay = msg;
+
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-    osDelay(500);
+    osDelay(delay);
   }
-  // osThreadTerminate(NULL);
+}
+
+void UARTThread(void *argument) {
+  uint16_t delay = 0;
+  uint8_t msg_priority = 1;
+
+  while(1) {
+    printf("Specify the LD2 LED blink period: ");
+    scanf("%hu", &delay);
+    printf("\r\nSpecified period: %hu\n\r", delay);
+    osStatus_t status = osMessageQueuePut(q_id, &delay, msg_priority, osWaitForever);
+    printf("Put status: %d\n", (int)status);
+  }
 }
 
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed portCHAR *pcTaskName) {
@@ -91,6 +119,12 @@ the firmware execution here */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+#ifdef DEBUG
+    RetargetInit(&huart2);
+    // initialise_monitor_handles();
+#endif
+
+  q_id = osMessageQueueNew(5, sizeof(uint16_t), &msg_q_attr); // Define message queue
 
   /* USER CODE END 1 */
 
@@ -113,7 +147,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
 
@@ -138,11 +171,11 @@ int main(void)
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  osThreadId_t blink = osThreadNew(blinkThread, NULL, &defaultTask_attributes);
+  __attribute__ ((unused)) osThreadId_t blink = osThreadNew(blinkThread, NULL, &blinkThread_attributes);
+  __attribute__ ((unused)) osThreadId_t uart = osThreadNew(UARTThread, NULL, &UARTThread_attributes);
 
   /* USER CODE END RTOS_THREADS */
 

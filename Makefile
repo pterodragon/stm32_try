@@ -67,7 +67,8 @@ Middlewares/Third_Party/FreeRTOS/Source/tasks.c \
 Middlewares/Third_Party/FreeRTOS/Source/timers.c \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
-Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
+Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
+Drivers/STM32F4xx_HAL_Driver/Src/retarget/retarget.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -145,7 +146,7 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2
+CFLAGS += -g3 -gdwarf-2
 endif
 
 
@@ -162,17 +163,14 @@ LDSCRIPT = STM32F446RETx_FLASH.ld
 # libraries
 LIBS = -lc -lm
 ifeq ($(DEBUG), 1)
-LIBS += -lrdimon
-else
 LIBS += -lnosys
 endif
 LIBDIR = 
 
 LDFLAGS = $(MCU) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 ifeq ($(DEBUG), 1)
-LDFLAGS += -specs=rdimon.specs 
+LDFLAGS += -specs=nosys.specs -specs=nano.specs 
 else
-LDFLAGS += -specs=nano.specs 
 
 endif
 
