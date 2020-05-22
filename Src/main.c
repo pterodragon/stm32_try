@@ -48,21 +48,21 @@ UART_HandleTypeDef huart2;
 
 /* Definitions for defaultTask */
 // !!!!!! too small or too big stack sizes lead to weird error
-const osThreadAttr_t UARTThread_attributes = {
+const osThreadAttr_t delayThread_attributes = {
   .name = "UART",
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 2048 * 4 // !!! matters
 };
 const osThreadAttr_t blinkThread_attributes = {
-  .name = "blink",
+  .name = "delay",
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 1024 * 4 // !!! matters
 };
 /* USER CODE BEGIN PV */
-const osMessageQueueAttr_t msg_q_attr = {
-    .name = "MsgBox",
+const osSemaphoreAttr_t sem_attr = {
+    .name = "sema",
 };
-osMessageQueueId_t q_id;
+osSemaphoreId semid;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,30 +79,16 @@ static void MX_USART2_UART_Init(void);
 extern void initialise_monitor_handles(void);
 
 void blinkThread(void *argument) {
-  uint16_t delay = 500; /* Default delay */
-
   while(1) {
-    uint16_t msg;
-    uint8_t msg_priority = 0;
-    osStatus_t status = osMessageQueueGet(q_id, &msg, &msg_priority, 1);
-    // printf("get status: %lu\n", (uint32_t)status);
-    if(status == osOK) delay = msg;
-
+    osSemaphoreAcquire(semid, osWaitForever);
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-    osDelay(delay);
   }
 }
 
-void UARTThread(void *argument) {
-  uint16_t delay = 0;
-  uint8_t msg_priority = 1;
-
+void delayThread(void *argument) {
   while(1) {
-    printf("Specify the LD2 LED blink period: ");
-    scanf("%hu", &delay);
-    printf("\r\nSpecified period: %hu\n\r", delay);
-    osStatus_t status = osMessageQueuePut(q_id, &delay, msg_priority, osWaitForever);
-    printf("Put status: %d\n", (int)status);
+    osDelay(500);
+    osSemaphoreRelease(semid);
   }
 }
 
@@ -123,8 +109,6 @@ int main(void)
     RetargetInit(&huart2);
     // initialise_monitor_handles();
 #endif
-
-  q_id = osMessageQueueNew(5, sizeof(uint16_t), &msg_q_attr); // Define message queue
 
   /* USER CODE END 1 */
 
@@ -174,8 +158,12 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  semid = osSemaphoreNew(1, 1, &sem_attr);
+
   __attribute__ ((unused)) osThreadId_t blink = osThreadNew(blinkThread, NULL, &blinkThread_attributes);
-  __attribute__ ((unused)) osThreadId_t uart = osThreadNew(UARTThread, NULL, &UARTThread_attributes);
+  __attribute__ ((unused)) osThreadId_t delay = osThreadNew(delayThread, NULL, &delayThread_attributes);
+
+  osSemaphoreAcquire(semid, osWaitForever);
 
   /* USER CODE END RTOS_THREADS */
 
@@ -309,24 +297,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartDefaultTask */
-/**
-  * @brief  Function implementing the defaultTask thread.
-  * @param  argument: Not used 
-  * @retval None
-  */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
-{
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END 5 */ 
-}
 
  /**
   * @brief  Period elapsed callback in non blocking mode
