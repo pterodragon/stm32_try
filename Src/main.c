@@ -47,22 +47,10 @@
 UART_HandleTypeDef huart2;
 
 /* Definitions for defaultTask */
-// !!!!!! too small or too big stack sizes lead to weird error
-const osThreadAttr_t delayThread_attributes = {
-  .name = "UART",
-  .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 2048 * 4 // !!! matters
-};
-const osThreadAttr_t blinkThread_attributes = {
-  .name = "delay",
-  .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 1024 * 4 // !!! matters
-};
 /* USER CODE BEGIN PV */
-const osSemaphoreAttr_t sem_attr = {
-    .name = "sema",
+const osTimerAttr_t timer_attr = {
+    .name = "timer"
 };
-osSemaphoreId semid;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,24 +66,15 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN 0 */
 extern void initialise_monitor_handles(void);
 
-void blinkThread(void *argument) {
-  while(1) {
-    osSemaphoreAcquire(semid, osWaitForever);
-    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-  }
-}
-
-void delayThread(void *argument) {
-  while(1) {
-    osDelay(500);
-    osSemaphoreRelease(semid);
-  }
-}
-
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed portCHAR *pcTaskName) {
     asm("BKPT #0"); /* If a stack overflow is detected then, the debugger stop
 the firmware execution here */
 }
+
+void blinkFunc(void *argument) {
+    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -158,12 +137,8 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  semid = osSemaphoreNew(1, 1, &sem_attr);
-
-  __attribute__ ((unused)) osThreadId_t blink = osThreadNew(blinkThread, NULL, &blinkThread_attributes);
-  __attribute__ ((unused)) osThreadId_t delay = osThreadNew(delayThread, NULL, &delayThread_attributes);
-
-  osSemaphoreAcquire(semid, osWaitForever);
+  osTimerId_t timer_id = osTimerNew(&blinkFunc, osTimerPeriodic, NULL, &timer_attr);
+  osTimerStart(timer_id, 500);
 
   /* USER CODE END RTOS_THREADS */
 
