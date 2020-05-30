@@ -137,6 +137,9 @@
 
 # Useful
 - `HAL_UART_Init()` calls `HAL_UART_MspInit()`
+- Registers for fault analysis (for STM32F446):
+    - `SCB->CFSR == 0xe000ed28`
+    - `p/x *(uint32_t*)0xE000ED28` in gdb
 
 # Caveat
 - When memory-to-memory mode is used, the circular and direct modes are not allowed. Only the DMA2 controller is able to perform memory-to-memory transfers. Ref: RM0390
@@ -161,5 +164,16 @@
 - reference:
     - https://www.openstm32.org/Other%2BManuals
     - see `Drivers/STM32F4xx_HAL_Driver/Src/retarget/retarget.c`
+
+
+### vPortSVCHandler
+- reference:
+    - http://www.openrtos.net/FreeRTOS_Support_Forum_Archive/June_2017/freertos_STM32F100RCT_MCU_STM32CubeMX_project_prvPortStartFirstTask_crash_af5cfb58j.html
+STM32F100RCT MCU + STM32CubeMX project: prvPortStartFirstTask() crash
+Posted by rtel on June 15, 2017
+
+The SVC instruction effectively calls `vPortSVCHandler()`, which in turn starts the first task running. Often people step through to the SVC instruction when debugging and think the crash is occurring there - whereas in fact unknown to them the debugger has started a task executing and the crash actually happens in the task.
+
+First set a break point in `vPortSVCHandler()` to see if it gets hit. If it does step through that program to see which task runs first. If you actually get into a task then something is going wrong in a task, not when starting the scheduler.
 
 
