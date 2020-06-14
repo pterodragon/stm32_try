@@ -26,7 +26,6 @@ void printUsageErrorMsg(uint32_t CFSRValue)
    }
 }
 
-
 enum { r0, r1, r2, r3, r12, lr, pc, psr};
 
 void Hard_Fault_Handler(uint32_t stack[])

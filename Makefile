@@ -36,8 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-Src/main-ex6.c \
-Src/tickless-mode.c \
+Src/main-ex7.c \
 Src/nucleo_hal_bsp.c \
 Src/stm32f4xx_it.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
@@ -118,9 +117,7 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32F446xx \
--DTICKLESS \
--DTICKLESS_DEBUG
+-DSTM32F446xx
 
 ifeq ($(DEBUG), 1)
   OPT += -O0
