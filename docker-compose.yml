@@ -16,3 +16,4 @@ services:
         security_opt:
             - seccomp:unconfined
         network_mode: "host"
+        command: bash -c "cd ./Documents/github/stm32_try && ./build_newlib.sh"

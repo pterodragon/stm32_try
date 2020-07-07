@@ -33,6 +33,7 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include <cmsis_os.h>
 
 /* USER CODE BEGIN 0 */
 
@@ -51,7 +52,7 @@ void HAL_MspInit(void)
 
   /* System interrupt init*/
   /* SysTick_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, configLIBRARY_LOWEST_INTERRUPT_PRIORITY, 0);
 
   /* USER CODE BEGIN MspInit 1 */
 

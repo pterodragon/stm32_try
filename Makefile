@@ -36,43 +36,53 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-Src/main-ex7.c \
+Src/main-ex2.c \
 Src/nucleo_hal_bsp.c \
 Src/stm32f4xx_it.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c \
-Src/system_stm32f4xx.c \
 Src/stm32f4xx_hal_msp.c \
-Src/freertos.c \
-Middlewares/Third_Party/FreeRTOS/Source/croutine.c \
-Middlewares/Third_Party/FreeRTOS/Source/event_groups.c \
-Middlewares/Third_Party/FreeRTOS/Source/list.c \
-Middlewares/Third_Party/FreeRTOS/Source/queue.c \
-Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c \
-Middlewares/Third_Party/FreeRTOS/Source/tasks.c \
-Middlewares/Third_Party/FreeRTOS/Source/timers.c \
-Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c \
-Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
-Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
-# Src/stm32f4xx_hal_timebase_tim.c \
+Src/stm32f4xx_hal_timebase_TIM.c \
+Src/config.c \
+Src/fatfs.c \
+system/src/stm32f4xx/stm32f4xx_hal_adc.c \
+system/src/stm32f4xx/stm32f4xx_hal_uart.c \
+system/src/stm32f4xx/stm32f4xx_hal_tim.c \
+system/src/stm32f4xx/stm32f4xx_hal_tim_ex.c \
+system/src/stm32f4xx/stm32f4xx_hal_rcc.c \
+system/src/stm32f4xx/stm32f4xx_hal_rcc_ex.c \
+system/src/stm32f4xx/stm32f4xx_hal_flash.c \
+system/src/stm32f4xx/stm32f4xx_hal_flash_ex.c \
+system/src/stm32f4xx/stm32f4xx_hal_flash_ramfunc.c \
+system/src/stm32f4xx/stm32f4xx_hal_gpio.c \
+system/src/stm32f4xx/stm32f4xx_hal_dma_ex.c \
+system/src/stm32f4xx/stm32f4xx_hal_dma.c \
+system/src/stm32f4xx/stm32f4xx_hal_pwr.c \
+system/src/stm32f4xx/stm32f4xx_hal_pwr_ex.c \
+system/src/stm32f4xx/stm32f4xx_hal_cortex.c \
+system/src/stm32f4xx/stm32f4xx_hal.c \
+system/src/stm32f4xx/stm32f4xx_hal_spi.c \
+system/src/cmsis/system_stm32f4xx.c \
+Middlewares/FatFs/src/option/ccsbcs.c \
+Middlewares/FatFs/src/ff.c \
+Middlewares/FatFs/src/ff_gen_drv.c \
+Middlewares/FatFs/src/diskio.c \
+Middlewares/FatFs/src/drivers/sd_diskio_spi.c \
+Middlewares/ioLibrary_Driver/Ethernet/wizchip_conf.c \
+Middlewares/ioLibrary_Driver/Ethernet/W5500/w5500.c \
+Middlewares/ioLibrary_Driver/Ethernet/socket.c \
+Middlewares/ioLibrary_Driver/Internet/httpServer/httpServer.c \
+Middlewares/ioLibrary_Driver/Internet/httpServer/httpParser.c \
+Middlewares/ioLibrary_Driver/Internet/httpServer/httpUtil.c \
+Middlewares/ioLibrary_Driver/Internet/DHCP/dhcp.c \
+Middlewares/FreeRTOS/CMSIS_RTOS/cmsis_os.c \
+Middlewares/FreeRTOS/tasks.c \
+Middlewares/FreeRTOS/queue.c \
+Middlewares/FreeRTOS/list.c \
+Middlewares/FreeRTOS/portable/GCC/ARM_CM4F/port.c \
+Middlewares/FreeRTOS/portable/MemMang/heap_4.c
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32f446xx.s
+system/src/cmsis/startup_stm32f446xx.S
 
 
 #######################################
@@ -117,7 +127,10 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32F446xx
+-DSTM32F446xx \
+-DRETARGET_TCP \
+-D_USE_SDCARD_ \
+-DUSE_FREE_RTOS
 
 ifeq ($(DEBUG), 1)
   OPT += -O0
@@ -131,15 +144,21 @@ AS_INCLUDES =
 # C includes
 C_INCLUDES =  \
 -IInc \
--IDrivers/STM32F4xx_HAL_Driver/Inc \
--IDrivers/STM32F4xx_HAL_Driver/Inc/Legacy \
--IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
--IDrivers/CMSIS/Include \
--IDrivers/CMSIS/Include \
+-Isystem/include/stm32f4xx \
+-Isystem/include/cmsis/device \
+-Isystem/include/cmsis \
+-Isystem/include \
 -Inewlib-cygwin/newlib/libc/include \
--IMiddlewares/Third_Party/FreeRTOS/Source/include \
--IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
--IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+-IMiddlewares/FatFs/src \
+-IMiddlewares/FatFs/src/drivers \
+-IMiddlewares/FreeRTOS/CMSIS_RTOS \
+-IMiddlewares/FreeRTOS/include \
+-IMiddlewares/FreeRTOS/Source/include \
+-IMiddlewares/FreeRTOS/Source/CMSIS_RTOS \
+-IMiddlewares/FreeRTOS/portable/GCC/ARM_CM4F \
+-IMiddlewares/ioLibrary_Driver/Internet \
+-IMiddlewares/ioLibrary_Driver/Ethernet \
+-IMiddlewares
 
 
 # compile gcc flags
@@ -154,6 +173,7 @@ endif
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+CFLAGS += -nostdlib
 
 
 #######################################
@@ -163,23 +183,13 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LDSCRIPT = STM32F446RETx_FLASH.ld
 
 # libraries
-# LIBS = -lc -lm -lnosys 
-#
-LIBS = -lc -lm
-ifeq ($(DEBUG), 1)
-LIBS += -lrdimon
-else
-LIBS += -lnosys
-endif
-LIBDIR = 
-# LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
-LDFLAGS = $(MCU) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
-ifeq ($(DEBUG), 1)
-LDFLAGS += -specs=rdimon.specs 
-else
-LDFLAGS += -specs=nano.specs 
+LIBS = -lc -lm -lnosys
 
-endif
+# run docker-compose up toolchain to build newlib
+LIBDIR = -L./newlib-cygwin/install/newlib/arm-none-eabi/lib/thumb/v7e-m+fp/hard
+
+LDFLAGS = $(MCU) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS += -specs=nosys.specs 
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
@@ -192,13 +202,13 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
-vpath %.s $(sort $(dir $(ASM_SOURCES)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.S=.o)))
+vpath %.S $(sort $(dir $(ASM_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile

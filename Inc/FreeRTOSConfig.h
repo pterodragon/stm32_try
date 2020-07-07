@@ -96,14 +96,8 @@
     extern uint32_t SystemCoreClock;
 #endif
 
-#ifdef TICKLESS
-#define configUSE_TICKLESS_IDLE                  2
-#define configUSE_TIMERS                         0
-#else
 #define configUSE_TICKLESS_IDLE                  0
-#define configUSE_TIMERS                         1
-#endif
-
+#define configUSE_TIMERS                         0
 #define configUSE_PREEMPTION                     1
 #define configUSE_TIME_SLICING                   1
 #define configUSE_IDLE_HOOK                      0
@@ -112,11 +106,11 @@
 #define configTICK_RATE_HZ                       ((TickType_t)1000)
 #define configMAX_PRIORITIES                     ( 7 )
 #define configMINIMAL_STACK_SIZE                 ((uint16_t)256)
-#define configTOTAL_HEAP_SIZE                    ((size_t)6000)
+#define configTOTAL_HEAP_SIZE                    ((size_t)5000)
 #define configMAX_TASK_NAME_LEN                  ( 16 )
 #define configUSE_TRACE_FACILITY                 1
-#define configGENERATE_RUN_TIME_STATS            1
-#define configUSE_STATS_FORMATTING_FUNCTIONS     1
+#define configGENERATE_RUN_TIME_STATS            0
+#define configUSE_STATS_FORMATTING_FUNCTIONS     0
 #define configUSE_16_BIT_TICKS                   0
 #define configUSE_MUTEXES                        1
 #define configQUEUE_REGISTRY_SIZE                8
@@ -125,40 +119,9 @@
 #define configTIMER_TASK_STACK_DEPTH             ( configMINIMAL_STACK_SIZE * 2 )
 
 #ifdef DEBUG
-#define configCHECK_FOR_STACK_OVERFLOW           2
+#define configCHECK_FOR_STACK_OVERFLOW           0
 #endif
 
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()        \
-  do {                                                  \
-    TIM_HandleTypeDef htim2;                            \
-    htim2.Instance = TIM2;                              \
-    htim2.Init.Prescaler = 8999; /*90MHz/4499 = 20KHz*/ \
-    htim2.Init.Period = 0xFFFFFFFF;                     \
-                                                        \
-    __TIM2_CLK_ENABLE();                                \
-    HAL_TIM_Base_Init(&htim2);                          \
-    HAL_TIM_Base_Start(&htim2);                         \
-  }while(0)
-
-#define portGET_RUN_TIME_COUNTER_VALUE() TIM2->CNT
-
-
-#if configUSE_TICKLESS_IDLE == 2
-
-void SystemClock_Config(void);
-//void preSLEEP(TickType_t xModifiableIdleTime);
-//void postSLEEP(TickType_t xModifiableIdleTime);
-
-void preSTOP();
-void postSTOP();
-
-#define configPRE_SLEEP_PROCESSING(x) (preSLEEP(x))
-#define configPOST_SLEEP_PROCESSING(x) (postSLEEP(x))
-
-#define configPRE_STOP_PROCESSING(x) (preSTOP(x))
-#define configPOST_STOP_PROCESSING(x) (postSTOP(x))
-
-#endif
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                    0

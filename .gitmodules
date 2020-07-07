@@ -4,3 +4,6 @@
 [submodule "newlib-cygwin"]
 	path = newlib-cygwin
 	url = git://sourceware.org/git/newlib-cygwin.git
+[submodule "ioLibrary_Driver"]
+	path = ioLibrary_Driver
+	url = https://github.com/Wiznet/ioLibrary_Driver

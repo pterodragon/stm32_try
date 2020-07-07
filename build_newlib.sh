@@ -17,3 +17,4 @@ mkdir -p build/newlib install &&
 cd build/newlib &&
 $src_dir/configure $flags --prefix=$src_dir/install/newlib -v &&
 make all -j8
+# lib in ./newlib-cygwin/install

@@ -140,6 +140,9 @@
 - Registers for fault analysis (for STM32F446):
     - `SCB->CFSR == 0xe000ed28`
     - `p/x *(uint32_t*)0xE000ED28` in gdb
+    - ref:
+        - https://interrupt.memfault.com/blog/cortex-m-fault-debug
+        - https://www.freertos.org/Debugging-Hard-Faults-On-Cortex-M-Microcontrollers.html
 
 # Caveat
 - When memory-to-memory mode is used, the circular and direct modes are not allowed. Only the DMA2 controller is able to perform memory-to-memory transfers. Ref: RM0390
